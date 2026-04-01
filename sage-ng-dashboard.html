@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAGE-NG Nigeria Intelligence Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1e;
+            color: #eef2ff;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: #0f1422;
+            border-right: 1px solid #1e2640;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #1e2640;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        /* Threat Levels */
+        .threat-card {
+            background: #1a1f2e;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .threat-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+        
+        .instability-score {
+            font-size: 48px;
+            font-weight: 800;
+            color: #f59e0b;
+        }
+        
+        .instability-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .risk-indicator {
+            margin-top: 16px;
+            background: #0f1422;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .risk-bar {
+            height: 6px;
+            background: #2d3748;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .risk-fill {
+            width: 78%;
+            height: 100%;
+            background: #f97316;
+            border-radius: 3px;
+        }
+        
+        /* Alerts List */
+        .alerts-list {
+            margin-top: 24px;
+        }
+        
+        .alert-item {
+            background: #1a1f2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 3px solid #ef4444;
+        }
+        
+        .alert-critical {
+            border-left-color: #ef4444;
+        }
+        
+        .alert-high {
+            border-left-color: #f97316;
+        }
+        
+        .alert-medium {
+            border-left-color: #eab308;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .alert-time {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: #0f1422;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #1e2640;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        
+        /* Map Container */
+        .map-container {
+            background: #0f1422;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border: 1px solid #1e2640;
+        }
+        
+        .map-placeholder {
+            background: #0a0f1e;
+            border-radius: 12px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            color: #4b5563;
+        }
+        
+        /* Feed Grid */
+        .feeds-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .feed-card {
+            background: #0f1422;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #1e2640;
+        }
+        
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #1e2640;
+        }
+        
+        .feed-title {
+            font-weight: 600;
+        }
+        
+        .feed-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #1e2640;
+        }
+        
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feed-text {
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        
+        .feed-source {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .threat-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-critical {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
+        
+        .badge-high {
+            background: #7c2d12;
+            color: #fed7aa;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0f1422;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2d3748;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div>
+                    <h1>SAGE-NG</h1>
+                    <p>Nigeria Intelligence Dashboard</p>
+                </div>
+            </div>
+            
+            <div class="threat-card">
+                <div class="threat-title">NATIONAL INSTABILITY INDEX</div>
+                <div class="instability-score">78.4</div>
+                <div class="instability-label">High Risk - Elevated Threat Level</div>
+                <div class="risk-indicator">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                        <span>North East</span>
+                        <span>Critical</span>
+                    </div>
+                    <div class="risk-bar"><div class="risk-fill" style="width: 92%"></div></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 12px;">
+                        <span>North West</span>
+                        <span>High</span>
+                    </div>
+                    <div class="risk-bar"><div class="risk-fill" style="width: 78%; background: #f97316;"></div></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 12px;">
+                        <span>North Central</span>
+                        <span>Elevated</span>
+                    </div>
+                    <div class="risk-bar"><div class="risk-fill" style="width: 64%; background: #eab308;"></div></div>
+                </div>
+            </div>
+            
+            <div class="threat-card">
+                <div class="threat-title">ACTIVE THREATS</div>
+                <div class="stat-value" style="font-size: 36px;">12</div>
+                <div class="stat-label">Active incidents detected</div>
+                <div style="margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                        <span>Bandit Activity</span>
+                        <span style="color: #ef4444;">6</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                        <span>Terrorist Movements</span>
+                        <span style="color: #f97316;">3</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                        <span>Farmer-Herder Conflict</span>
+                        <span style="color: #eab308;">3</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alerts-list">
+                <div class="threat-title">LIVE ALERTS</div>
+                
+                <div class="alert-item alert-critical">
+                    <div class="alert-title">🚨 BANDIT ATTACK - ZAMFARA</div>
+                    <div class="alert-time">2 minutes ago · Confirmed</div>
+                </div>
+                
+                <div class="alert-item alert-high">
+                    <div class="alert-title">⚠️ TERRORIST MOVEMENT - BORNO</div>
+                    <div class="alert-time">15 minutes ago · Intelligence report</div>
+                </div>
+                
+                <div class="alert-item alert-high">
+                    <div class="alert-title">📱 TIKTOK RECRUITMENT - HAUSA</div>
+                    <div class="alert-time">32 minutes ago · 3 accounts flagged</div>
+                </div>
+                
+                <div class="alert-item alert-medium">
+                    <div class="alert-title">🌾 HERDER CONFLICT - BENUE</div>
+                    <div class="alert-time">1 hour ago · Tensions rising</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Social Media Threats</div>
+                    <div style="font-size: 11px; color: #10b981; margin-top: 8px;">↑ 12 from yesterday</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">TikTok Accounts Flagged</div>
+                    <div style="font-size: 11px; color: #f97316; margin-top: 8px;">↑ 8 in last 24h</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Active Conflict Zones</div>
+                    <div style="font-size: 11px; color: #ef4444; margin-top: 8px;">Critical: Borno, Zamfara</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">News Sources Monitored</div>
+                    <div style="font-size: 11px; color: #6b7280; margin-top: 8px;">AI-powered analysis</div>
+                </div>
+            </div>
+            
+            <!-- Map -->
+            <div class="map-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="feed-title">📍 NIGERIA SITUATION MAP</div>
+                    <div style="display: flex; gap: 16px;">
+                        <span style="font-size: 12px;"><span style="color: #ef4444;">●</span> Active Conflict</span>
+                        <span style="font-size: 12px;"><span style="color: #f97316;">●</span> High Alert</span>
+                        <span style="font-size: 12px;"><span style="color: #eab308;">●</span> Monitoring</span>
+                    </div>
+                </div>
+                <div class="map-placeholder">
+                    <div style="font-size: 48px;">🗺️</div>
+                    <div>Live Map Integration</div>
+                    <div style="font-size: 12px; color: #6b7280;">Active Zones: Borno, Zamfara, Kaduna, Benue, Katsina, Niger</div>
+                    <div style="font-size: 10px; color: #4b5563;">[Interactive Map Loads Here - Supports Leaflet/Mapbox]</div>
+                </div>
+            </div>
+            
+            <!-- Feeds -->
+            <div class="feeds-grid">
+                <!-- Social Media Intelligence -->
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <div class="feed-title">📱 SOCIAL MEDIA INTELLIGENCE</div>
+                        <div style="font-size: 11px; color: #10b981;">LIVE</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            🎥 Boko Haram recruitment video detected on TikTok - Hausa language, weapons displayed
+                            <span class="threat-badge badge-critical">CRITICAL</span>
+                        </div>
+                        <div class="feed-source">TikTok · 8 mins ago · Hausa detected</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            📢 X (Twitter) account promoting bandit attacks in Zamfara - 12k followers
+                            <span class="threat-badge badge-high">HIGH</span>
+                        </div>
+                        <div class="feed-source">X · 23 mins ago · English/Hausa</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            💬 Telegram channel sharing IED instructions - linked to ISWAP
+                            <span class="threat-badge badge-critical">CRITICAL</span>
+                        </div>
+                        <div class="feed-source">Telegram · 45 mins ago · Encrypted</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            🌾 Hate speech against Fulani herders detected - HERDPhobia flag
+                            <span class="threat-badge badge-medium">MEDIUM</span>
+                        </div>
+                        <div class="feed-source">Facebook · 1 hour ago · Pidgin</div>
+                    </div>
+                </div>
+                
+                <!-- OSINT & News Analysis -->
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <div class="feed-title">📰 OSINT & NEWS ANALYSIS</div>
+                        <div style="font-size: 11px; color: #10b981;">AI SUMMARIES</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            🚁 Military airstrikes reported in Sambisa Forest - 12 terrorists neutralized
+                        </div>
+                        <div class="feed-source">Premium Times · 30 mins ago · Verified</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            💰 Kidnapping ransom payment detected - $50,000 BTC transfer to bandit wallet
+                        </div>
+                        <div class="feed-source">Chainalysis · 52 mins ago · Crypto tracking</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            📡 Satellite imagery shows new ISWAP camp in Lake Chad region
+                        </div>
+                        <div class="feed-source">OSINT Analysis · 1 hour ago · Confirmed</div>
+                    </div>
+                    
+                    <div class="feed-item">
+                        <div class="feed-text">
+                            🌍 Unusual military aircraft activity detected - 3 Nigerian Air Force jets patrolling
+                        </div>
+                        <div class="feed-source">Flight Radar · 2 hours ago · Anomaly detected</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Section: Predictive Intelligence -->
+            <div class="feed-card" style="margin-top: 24px;">
+                <div class="feed-header">
+                    <div class="feed-title">🔮 PREDICTIVE INTELLIGENCE</div>
+                    <div style="font-size: 11px; color: #f59e0b;">AI-GENERATED</div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div>
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">NEXT 24H RISK</div>
+                        <div style="font-size: 24px; font-weight: 700;">86%</div>
+                        <div style="font-size: 11px;">Attack probability in Zamfara</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">SOCIAL MEDIA SURGE</div>
+                        <div style="font-size: 24px; font-weight: 700;">+47%</div>
+                        <div style="font-size: 11px;">Recruitment content trending</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">RECOMMENDED ACTION</div>
+                        <div style="font-size: 14px; font-weight: 600;">Deploy rapid response to Katsina border</div>
+                        <div style="font-size: 11px;">Based on movement patterns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh every 30 seconds (simulated real-time updates)
+        setInterval(() => {
+            // In production, fetch from your API
+            console.log("Dashboard auto-refreshing...");
+            
+            // Update timestamps dynamically
+            const times = document.querySelectorAll('.alert-time');
+            times.forEach((time, index) => {
+                if (index === 0) time.textContent = "Just now · Confirmed";
+                else if (index === 1) time.textContent = "Updated just now";
+            });
+        }, 30000);
+    </script>
+</body>
+</html>
