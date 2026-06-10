@@ -1,0 +1,53 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg14
+    environment:
+      POSTGRES_USER: sage_user
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_DB: sage_ng
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://sage_user:secure_password@postgres/sage_ng
+      REDIS_URL: redis://redis:6379
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+
+  celery_worker:
+    build: ./backend
+    command: celery -A main.celery worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://sage_user:secure_password@postgres/sage_ng
+    depends_on:
+      - postgres
+      - redis
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://backend:8000
+      WS_URL: ws://backend:8000/ws/live
+
+volumes:
+  postgres_data:

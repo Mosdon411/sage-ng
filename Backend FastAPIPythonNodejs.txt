@@ -1,0 +1,6 @@
+Backend: FastAPI (Python) + Node.js (WebSocket for real-time)
+Database: PostgreSQL + TimescaleDB (time-series threat data)
+Cache/Real-time: Redis + Socket.io
+LLM: Llama 3.1 70B (local) or GPT-4o API
+CV: YOLOv8 + OpenCV
+Queue: Celery + RabbitMQ

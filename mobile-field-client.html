@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAGE-NG Mobile Field Client</title>
+    <style>
+        :root {
+            --bg: #07100d;
+            --panel: #101914;
+            --panel-2: #17211b;
+            --line: rgba(255, 255, 255, 0.11);
+            --text: #edf7f0;
+            --muted: #8ba194;
+            --green: #22c55e;
+            --blue: #60a5fa;
+            --amber: #f59e0b;
+            --red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .shell {
+            width: min(100%, 520px);
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #0b1510;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+            background: rgba(7, 16, 13, 0.96);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 16px 12px;
+        }
+
+        .topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .status {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 6px 9px;
+            font-size: 11px;
+            color: var(--muted);
+            background: #0e1813;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--red);
+        }
+
+        .dot.live {
+            background: var(--green);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+        }
+
+        main {
+            padding: 12px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            padding: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        label {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #0b120f;
+            color: var(--text);
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 74px;
+            resize: vertical;
+        }
+
+        button {
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 10px 12px;
+            background: var(--green);
+            color: #041108;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--text);
+            border-color: var(--line);
+        }
+
+        button.warning {
+            background: var(--amber);
+            color: #160f03;
+        }
+
+        button.danger {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .metric {
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .metric span {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .metric strong {
+            font-size: 18px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: 0;
+        }
+
+        .small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .alert-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .alert {
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--blue);
+            border-radius: 6px;
+            background: #0d1712;
+            padding: 10px;
+        }
+
+        .alert.high {
+            border-left-color: var(--amber);
+        }
+
+        .alert.critical {
+            border-left-color: var(--red);
+        }
+
+        .alert.medium {
+            border-left-color: var(--blue);
+        }
+
+        .alert-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            color: #050805;
+            background: var(--green);
+            border-radius: 999px;
+            padding: 2px 7px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .badge.high {
+            background: var(--amber);
+        }
+
+        .badge.critical {
+            background: var(--red);
+            color: white;
+        }
+
+        .alert p {
+            margin: 0 0 8px;
+            color: #d8e8dd;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .alert-foot {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%) translateY(80px);
+            width: min(92%, 480px);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #152119;
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42);
+            transition: transform 180ms ease;
+            z-index: 8;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (min-width: 760px) {
+            body {
+                background: #06120d;
+            }
+
+            .shell {
+                margin: 24px auto;
+                min-height: calc(100vh - 48px);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header>
+            <div class="topline">
+                <div>
+                    <h1>SAGE-NG Mobile</h1>
+                    <div class="subtitle">Field alert client</div>
+                </div>
+                <div class="status">
+                    <span class="dot" id="liveDot"></span>
+                    <span id="liveText">Offline</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="metric-row">
+                <div class="metric">
+                    <span>Device</span>
+                    <strong id="metricDevice">--</strong>
+                </div>
+                <div class="metric">
+                    <span>Nearby</span>
+                    <strong id="metricNearby">0</strong>
+                </div>
+                <div class="metric">
+                    <span>Live</span>
+                    <strong id="metricLive">0</strong>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <h2>Device Registration</h2>
+                    <span class="small" id="deviceState">Not registered</span>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <label for="deviceId">Device ID</label>
+                        <input id="deviceId" value="SAGE-MOB-KADUNA-01">
+                    </div>
+                    <div>
+                        <label for="role">Role</label>
+                        <select id="role">
+                            <option value="field_agent">Field agent</option>
+                            <option value="command">Command desk</option>
+                            <option value="agri_extension">Agri extension</option>
+                            <option value="traffic_unit">Traffic unit</option>
+                            <option value="public">Public user</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="lat">Latitude</label>
+                        <input id="lat" type="number" step="0.0001" value="10.5105">
+                    </div>
+                    <div>
+                        <label for="lon">Longitude</label>
+                        <input id="lon" type="number" step="0.0001" value="7.4165">
+                    </div>
+                    <div>
+                        <label for="radius">Radius km</label>
+                        <input id="radius" type="number" min="1" max="1000" value="120">
+                    </div>
+                    <div>
+                        <label for="minSeverity">Min severity</label>
+                        <select id="minSeverity">
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button id="registerBtn">Register</button>
+                    <button class="secondary" id="locationBtn">Use GPS</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <h2>Nearby Alerts</h2>
+                    <button class="secondary" id="refreshBtn">Refresh</button>
+                </div>
+                <div class="alert-list" id="nearbyList">
+                    <div class="small">Register device to load local alerts.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <h2>Field Report</h2>
+                    <span class="small">Creates a command alert</span>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <label for="sector">Sector</label>
+                        <select id="sector">
+                            <option value="security">Security</option>
+                            <option value="intelligence">Intelligence</option>
+                            <option value="agriculture">Agriculture</option>
+                            <option value="mining">Mining</option>
+                            <option value="traffic">Traffic</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="severity">Severity</label>
+                        <select id="severity">
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <label for="reportText">Report</label>
+                    <textarea id="reportText">Suspicious movement reported near patrol corridor. Request verification.</textarea>
+                </div>
+                <div class="actions">
+                    <button class="warning" id="sendReportBtn">Send Report</button>
+                    <button class="danger" id="criticalBtn">Critical Alert</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <h2>Live Alert Stream</h2>
+                    <span class="small" id="streamState">Waiting</span>
+                </div>
+                <div class="alert-list" id="liveList">
+                    <div class="small">Live mobile WebSocket alerts will appear here.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const state = {
+            ws: null,
+            liveCount: 0,
+            registered: false
+        };
+
+        const $ = (id) => document.getElementById(id);
+
+        function devicePayload() {
+            return {
+                device_id: $('deviceId').value.trim(),
+                label: $('deviceId').value.trim(),
+                role: $('role').value,
+                latitude: Number($('lat').value),
+                longitude: Number($('lon').value),
+                radius_km: Number($('radius').value),
+                min_severity: $('minSeverity').value,
+                sectors: ['all']
+            };
+        }
+
+        function showToast(message) {
+            const toast = $('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function setLive(isLive) {
+            $('liveDot').classList.toggle('live', isLive);
+            $('liveText').textContent = isLive ? 'Live' : 'Offline';
+            $('streamState').textContent = isLive ? 'Connected' : 'Disconnected';
+        }
+
+        async function registerDevice() {
+            const payload = devicePayload();
+            const response = await fetch('/api/devices/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            state.registered = true;
+            $('deviceState').textContent = data.device.status || 'Registered';
+            $('metricDevice').textContent = data.device.device_id.split('-').slice(-1)[0];
+            connectMobileSocket(data.device.device_id);
+            await loadNearbyAlerts();
+            showToast('Device registered with SAGE-NG.');
+        }
+
+        function connectMobileSocket(deviceId) {
+            if (state.ws) {
+                state.ws.close();
+            }
+
+            const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            state.ws = new WebSocket(`${proto}://${window.location.host}/ws/mobile/${deviceId}`);
+
+            state.ws.onopen = () => {
+                setLive(true);
+                state.ws.send(JSON.stringify({ type: 'device_update', ...devicePayload() }));
+            };
+
+            state.ws.onclose = () => {
+                setLive(false);
+                setTimeout(() => {
+                    if (state.registered) connectMobileSocket(devicePayload().device_id);
+                }, 3000);
+            };
+
+            state.ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                if (message.type === 'mobile_init') {
+                    renderLiveAlerts(message.alerts || [], true);
+                }
+                if (message.type === 'mobile_alert') {
+                    state.liveCount += 1;
+                    $('metricLive').textContent = state.liveCount;
+                    renderLiveAlerts([message.alert], false);
+                    showToast(`${message.alert.severity.toUpperCase()}: ${message.alert.title}`);
+                }
+            };
+        }
+
+        async function loadNearbyAlerts() {
+            const lat = Number($('lat').value);
+            const lon = Number($('lon').value);
+            const radius = Number($('radius').value);
+            const minSeverity = $('minSeverity').value;
+            const response = await fetch(`/api/alerts/nearby?lat=${lat}&lon=${lon}&radius_km=${radius}&min_severity=${minSeverity}`);
+            const data = await response.json();
+            $('metricNearby').textContent = data.count;
+            renderAlerts($('nearbyList'), data.alerts || [], 'No nearby alerts inside this radius.');
+        }
+
+        function renderLiveAlerts(alerts, replace) {
+            const list = $('liveList');
+            if (replace) list.innerHTML = '';
+            if (!alerts.length && replace) {
+                list.innerHTML = '<div class="small">No live alerts matched this device yet.</div>';
+                return;
+            }
+            alerts.forEach((alert) => {
+                const node = alertNode(alert);
+                list.insertBefore(node, list.firstChild);
+            });
+            while (list.children.length > 12) {
+                list.removeChild(list.lastChild);
+            }
+        }
+
+        function renderAlerts(list, alerts, emptyText) {
+            list.innerHTML = '';
+            if (!alerts.length) {
+                list.innerHTML = `<div class="small">${emptyText}</div>`;
+                return;
+            }
+            alerts.forEach((alert) => list.appendChild(alertNode(alert)));
+        }
+
+        function alertNode(alert) {
+            const node = document.createElement('article');
+            node.className = `alert ${alert.severity || 'medium'}`;
+            const distance = alert.distance_km !== undefined ? `<span>${alert.distance_km} km away</span>` : '';
+            node.innerHTML = `
+                <div class="alert-head">
+                    <span>${escapeHtml(alert.title || 'Field Alert')}</span>
+                    <span class="badge ${alert.severity || 'medium'}">${escapeHtml(alert.severity || 'medium')}</span>
+                </div>
+                <p>${escapeHtml(alert.description || '')}</p>
+                <div class="alert-foot">
+                    <span>${escapeHtml(alert.sector || 'sector')}</span>
+                    <span>${escapeHtml(alert.verification_status || 'pending')}</span>
+                    ${distance}
+                </div>
+            `;
+            return node;
+        }
+
+        async function sendReport(forceCritical) {
+            const payload = {
+                sector: $('sector').value,
+                title: forceCritical ? 'Critical Field Report' : 'Field Report',
+                description: $('reportText').value,
+                severity: forceCritical ? 'critical' : $('severity').value,
+                latitude: Number($('lat').value),
+                longitude: Number($('lon').value),
+                confidence: forceCritical ? 0.95 : 0.82,
+                source: devicePayload().device_id,
+                verification_status: 'field_report'
+            };
+
+            const response = await fetch('/api/alerts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            showToast(`${data.field_alert.title} sent to command.`);
+            await loadNearbyAlerts();
+        }
+
+        function useGps() {
+            if (!navigator.geolocation) {
+                showToast('GPS is not available in this browser.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition((pos) => {
+                $('lat').value = pos.coords.latitude.toFixed(5);
+                $('lon').value = pos.coords.longitude.toFixed(5);
+                showToast('GPS coordinates updated.');
+                if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+                    state.ws.send(JSON.stringify({ type: 'location_update', ...devicePayload() }));
+                }
+            }, () => showToast('Could not read GPS location.'));
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        $('registerBtn').addEventListener('click', registerDevice);
+        $('refreshBtn').addEventListener('click', loadNearbyAlerts);
+        $('locationBtn').addEventListener('click', useGps);
+        $('sendReportBtn').addEventListener('click', () => sendReport(false));
+        $('criticalBtn').addEventListener('click', () => sendReport(true));
+
+        registerDevice().catch(() => showToast('Could not register device.'));
+    </script>
+</body>
+</html>
